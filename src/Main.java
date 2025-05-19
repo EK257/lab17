@@ -3,44 +3,40 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String g = "";
-        while(true){
-            try(BufferedWriter file = new BufferedWriter(new FileWriter("text.txt", true))){
-                System.out.print("Введите x/save/upload: ");
-                Scanner sc = new Scanner(System.in);
-                String x = sc.nextLine();
-                if(x.equals("save")){
-                    file.write(g);
-                    System.out.println("Сохранено");
-                    g="";
-                }
-                else if(x.equals("upload")){
-                    try(BufferedReader reader = new BufferedReader(new FileReader("text.txt"))){
-                        String line;
-                        while((line = reader.readLine()) != null){
-                            System.out.println(line);
-                        }
-                    }
-                    catch(IOException ex){
-                        System.out.println(ex.getMessage());
-                    }
-                }
-                else{
-                    double z = Double.parseDouble(x);
-                    Calcul u = new Calcul(z);
-                    g = "x = " + z + ", y = x-sinx = " + u.y + ";\n";
-                    System.out.print(g);
-                }
+        System.out.print("Введите x: ");
+        Scanner sc = new Scanner(System.in);
+        double x = sc.nextDouble();
+        Calc cl = new Calc(x);
+        System.out.println("x="+ x+ ", y=" + cl.y);
+        System.out.print("Введите save/upload: ");
+        sc = new Scanner(System.in);
+        String s = sc.nextLine();
+        if(s.equals("save")){
+            try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("text.txt"))){
+                oos.writeObject(cl);
+                System.out.println("Сохранено");
             }
-            catch (IOException ex){
+            catch(Exception ex){
                 System.out.println(ex.getMessage());
             }
         }
+        else if(s.equals("upload")){
+            try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream("text.txt"))){
+                Calc c = (Calc) ois.readObject();
+                System.out.println("x="+ c.x+ ", y=" + c.y);
+            }
+            catch(Exception ex){
+                System.out.println(ex.getMessage());
+            }
+        }
+        else{
+            System.out.println("Неправильная команда");
+        }
     }
 }
-class Calcul implements Serializable{
+class Calc implements Serializable {
     public double x, y;
-    public Calcul(double x){
+    public Calc(double x){
         this.x = x;
         this.y = calc(x);
     }
